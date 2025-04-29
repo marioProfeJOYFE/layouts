@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mrh.layouts.ui.theme.LayoutsTheme
 
@@ -44,7 +45,8 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             LayoutsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
+                    NavigationHost(
+                        navController = navController,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -57,19 +59,21 @@ class MainActivity : ComponentActivity() {
 fun NavigationHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
-){
+) {
     NavHost(
         navController = navController,
         modifier = modifier,
         startDestination = "home"
     ) {
-
+        composable(route = "home") {
+            Greeting()
+        }
     }
 }
 
 @SuppressLint("ResourceType")
 @Composable
-fun Greeting(modifier: Modifier = Modifier) {
+fun Greeting() {
     var textoFiltrar by remember { mutableStateOf("") }
     val listaJugadores = listOf(
         Player(
@@ -95,10 +99,10 @@ fun Greeting(modifier: Modifier = Modifier) {
         )
     )
 
-    Column (
-        modifier = modifier.fillMaxWidth(),
+    Column(
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         TextField(
             value = textoFiltrar,
             onValueChange = { textoUsuario ->
@@ -110,7 +114,7 @@ fun Greeting(modifier: Modifier = Modifier) {
         ) {
             items(listaJugadores.filter { jugador ->
                 jugador.nombre.uppercase().contains(textoFiltrar.uppercase())
-            }){ jugador ->
+            }) { jugador ->
                 PlayerCard(
                     imagenJugador = jugador.imagenJugador,
                     nombre = jugador.nombre,
@@ -181,13 +185,13 @@ fun PlayerCard(
 /**
  * Funcion para filtrar una lista de jugadores por nombre
  */
-fun filtrarJugadores(listaJugadores: List<Player>, textoFiltrar: String) : List<Player>{
+fun filtrarJugadores(listaJugadores: List<Player>, textoFiltrar: String): List<Player> {
     // Lista de elementos modificable, a diferencia de una List que es fija, solo puede SOBRECARGARSE
-    val listaFiltrada : ArrayList<Player> = ArrayList()
-    for( jugador in listaJugadores){
-        if(jugador.nombre.uppercase().contains(textoFiltrar.uppercase())){
+    val listaFiltrada: ArrayList<Player> = ArrayList()
+    for (jugador in listaJugadores) {
+        if (jugador.nombre.uppercase().contains(textoFiltrar.uppercase())) {
             listaFiltrada.add(jugador)
         }
     }
-    return  listaFiltrada
+    return listaFiltrada
 }
