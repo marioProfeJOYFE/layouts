@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +52,65 @@ import androidx.navigation.compose.rememberNavController
 import com.mrh.layouts.ui.theme.LayoutsTheme
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
             LayoutsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text("Cartas FIFA")
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                //Utilizar color del fondo de pantalla en aplicacion,
+                                //en este caso, el fondo del TopAppBar
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                //Forma de poner un color específico
+                                //containerColor = Color.Magenta
+                                , titleContentColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                    },
+                    bottomBar = {
+                        NavigationBar {
+                            NavigationBarItem(
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Home,
+                                        contentDescription = "Inicio"
+                                    )
+                                },
+                                onClick = {
+                                    navController.navigate(route = "home")
+                                },
+                                selected = true,
+                                label = {
+                                    Text("Inicio")
+                                }
+                            )
+                            NavigationBarItem(
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = "Equipos"
+                                    )
+                                },
+                                onClick = {
+                                    navController.navigate(route = "equipos")
+                                },
+                                selected = false,
+                                label = {
+                                    Text("Equipos")
+                                }
+                            )
+                        }
+                    }
+                ) { innerPadding ->
                     NavigationHost(
                         navController = navController,
                         modifier = Modifier.padding(innerPadding)
@@ -67,6 +133,9 @@ fun NavigationHost(
     ) {
         composable(route = "home") {
             Greeting()
+        }
+        composable(route = "equipos") {
+            ListaEquiposView()
         }
     }
 }
@@ -125,6 +194,91 @@ fun Greeting() {
             }
         }
     }
+}
+
+
+@SuppressLint("ResourceType")
+@Composable
+fun ListaEquiposView() {
+    val listaEquipos = listOf<Equipo>(
+        Equipo(
+            escudo = R.raw.rm,
+            nombre = "Real Madrid C.F.",
+            liga = "Liga EA Sports"
+        ),
+        Equipo(
+            escudo = R.raw.miami,
+            nombre = "Inter Miami",
+            liga = "MLS"
+        ),
+        Equipo(
+            escudo = R.raw.psg,
+            nombre = "Paris Saint Germain",
+            liga = "Ligue 1"
+        ),
+        Equipo(
+            escudo = R.raw.miami,
+            nombre = "Inter Miami",
+            liga = "MLS"
+        ),
+        Equipo(
+            escudo = R.raw.psg,
+            nombre = "Paris Saint Germain",
+            liga = "Ligue 1"
+        ),
+        Equipo(
+            escudo = R.raw.miami,
+            nombre = "Inter Miami",
+            liga = "MLS"
+        ),
+        Equipo(
+            escudo = R.raw.psg,
+            nombre = "Paris Saint Germain",
+            liga = "Ligue 1"
+        ),
+        Equipo(
+            escudo = R.raw.miami,
+            nombre = "Inter Miami",
+            liga = "MLS"
+        ),
+        Equipo(
+            escudo = R.raw.psg,
+            nombre = "Paris Saint Germain",
+            liga = "Ligue 1"
+        )
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            //Poder hacer scroll en la columna
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        for (equipo in listaEquipos) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Image(
+                        painter = painterResource(equipo.escudo),
+                        contentDescription = null,
+                        modifier = Modifier.size(90.dp).padding(start = 10.dp)
+                    )
+                    Column {
+                        Text(text = equipo.nombre)
+                        Text(text = equipo.liga)
+                    }
+                }
+            }
+        }
+
+    }
+
 }
 
 
