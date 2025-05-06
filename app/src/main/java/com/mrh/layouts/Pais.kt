@@ -1,8 +1,7 @@
 package com.mrh.layouts
 
-data class Equipo(
+data class Pais (
     val id: Int,
-    val escudo: Int,
     val nombre: String,
-    val liga: String
+    val bandera: Int
 )

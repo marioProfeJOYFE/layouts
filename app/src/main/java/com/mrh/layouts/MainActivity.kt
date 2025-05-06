@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +51,30 @@ import androidx.navigation.compose.rememberNavController
 import com.mrh.layouts.ui.theme.LayoutsTheme
 
 class MainActivity : ComponentActivity() {
+
+    val listaEquipos = listOf<Equipo>(
+        Equipo(
+            id = 0,
+            escudo = R.raw.rm,
+            nombre = "Real Madrid C.F.",
+            liga = "Liga EA Sports"
+        ),
+        Equipo(
+            id = 1,
+            escudo = R.raw.miami,
+            nombre = "Inter Miami",
+            liga = "MLS"
+        ),
+        Equipo(
+            id = 2,
+            escudo = R.raw.psg,
+            nombre = "Paris Saint Germain",
+            liga = "Ligue 1"
+        )
+    )
+
+    val listaPaises = listOf<Pais>()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,233 +142,235 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun NavigationHost(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
-) {
-    NavHost(
-        navController = navController,
-        modifier = modifier,
-        startDestination = "home"
+    @Composable
+    fun NavigationHost(
+        navController: NavHostController,
+        modifier: Modifier = Modifier
     ) {
-        composable(route = "home") {
-            Greeting()
-        }
-        composable(route = "equipos") {
-            ListaEquiposView()
-        }
-    }
-}
-
-@SuppressLint("ResourceType")
-@Composable
-fun Greeting() {
-    var textoFiltrar by remember { mutableStateOf("") }
-    val listaJugadores = listOf(
-        Player(
-            imagenJugador = R.raw.messi,
-            nombre = "MESSI",
-            bandera = R.raw.argentina,
-            escudoEquipo = R.raw.miami,
-            posicion = "ED"
-        ),
-        Player(
-            imagenJugador = R.raw.mbappe,
-            nombre = "MBAPPÉ",
-            bandera = R.raw.france,
-            escudoEquipo = R.raw.rm,
-            posicion = "ED"
-        ),
-        Player(
-            imagenJugador = R.raw.mbappe,
-            nombre = "MBAPPÉ",
-            bandera = R.raw.france,
-            escudoEquipo = R.raw.rm,
-            posicion = "ED"
-        )
-    )
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TextField(
-            value = textoFiltrar,
-            onValueChange = { textoUsuario ->
-                textoFiltrar = textoUsuario
-            }
-        )
-        LazyVerticalGrid(
-            columns = GridCells.FixedSize(200.dp)
+        NavHost(
+            navController = navController,
+            modifier = modifier,
+            startDestination = "home"
         ) {
-            items(listaJugadores.filter { jugador ->
-                jugador.nombre.uppercase().contains(textoFiltrar.uppercase())
-            }) { jugador ->
-                PlayerCard(
-                    imagenJugador = jugador.imagenJugador,
-                    nombre = jugador.nombre,
-                    bandera = jugador.bandera,
-                    escudoEquipo = jugador.escudoEquipo,
-                    posicion = jugador.posicion
-                )
+            composable(route = "home") {
+                Greeting()
+            }
+            composable(route = "equipos") {
+                ListaEquiposView(navController)
+            }
+            composable("jugadoresEquipo/{id}") { direccion ->
+                val idEquipo = direccion.arguments!!.getString("id").toString().toInt()
+                Greeting(id = idEquipo)
+            }
+            composable("jugadoresPais/{id}") { direccion ->
+                val idPais = direccion.arguments!!.getString("id").toString().toInt()
+                Greeting(pais = listaPaises[idPais].nombre)
             }
         }
     }
-}
 
-
-@SuppressLint("ResourceType")
-@Composable
-fun ListaEquiposView() {
-    val listaEquipos = listOf<Equipo>(
-        Equipo(
-            escudo = R.raw.rm,
-            nombre = "Real Madrid C.F.",
-            liga = "Liga EA Sports"
-        ),
-        Equipo(
-            escudo = R.raw.miami,
-            nombre = "Inter Miami",
-            liga = "MLS"
-        ),
-        Equipo(
-            escudo = R.raw.psg,
-            nombre = "Paris Saint Germain",
-            liga = "Ligue 1"
-        ),
-        Equipo(
-            escudo = R.raw.miami,
-            nombre = "Inter Miami",
-            liga = "MLS"
-        ),
-        Equipo(
-            escudo = R.raw.psg,
-            nombre = "Paris Saint Germain",
-            liga = "Ligue 1"
-        ),
-        Equipo(
-            escudo = R.raw.miami,
-            nombre = "Inter Miami",
-            liga = "MLS"
-        ),
-        Equipo(
-            escudo = R.raw.psg,
-            nombre = "Paris Saint Germain",
-            liga = "Ligue 1"
-        ),
-        Equipo(
-            escudo = R.raw.miami,
-            nombre = "Inter Miami",
-            liga = "MLS"
-        ),
-        Equipo(
-            escudo = R.raw.psg,
-            nombre = "Paris Saint Germain",
-            liga = "Ligue 1"
+    @SuppressLint("ResourceType")
+    @Composable
+    fun Greeting(id: Int? = null, pais: String? = null) {
+        var textoFiltrar by remember { mutableStateOf("") }
+        val listaJugadores = listOf(
+            Player(
+                imagenJugador = R.raw.messi,
+                nombre = "MESSI",
+                bandera = R.raw.argentina,
+                equipo = listaEquipos[1],
+                posicion = "ED"
+            ),
+            Player(
+                imagenJugador = R.raw.mbappe,
+                nombre = "MBAPPÉ",
+                bandera = R.raw.france,
+                equipo = listaEquipos[0],
+                posicion = "ED"
+            ),
+            Player(
+                imagenJugador = R.raw.dembele,
+                nombre = "DEMBELÉ",
+                bandera = R.raw.france,
+                equipo = listaEquipos[2],
+                posicion = "ED"
+            )
         )
-    )
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            //Poder hacer scroll en la columna
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        for (equipo in listaEquipos) {
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(12.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = textoFiltrar,
+                onValueChange = { textoUsuario ->
+                    textoFiltrar = textoUsuario
+                }
+            )
+            LazyVerticalGrid(
+                columns = GridCells.FixedSize(200.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    Image(
-                        painter = painterResource(equipo.escudo),
-                        contentDescription = null,
-                        modifier = Modifier.size(90.dp).padding(start = 10.dp)
+                items(filtrarJugadores(listaJugadores, textoFiltrar, id)) { jugador ->
+                    PlayerCard(
+                        imagenJugador = jugador.imagenJugador,
+                        nombre = jugador.nombre,
+                        bandera = jugador.bandera,
+                        escudoEquipo = jugador.equipo.escudo,
+                        posicion = jugador.posicion
                     )
+                }
+            }
+        }
+    }
+
+
+    @SuppressLint("ResourceType")
+    @Composable
+    fun ListaEquiposView(navController: NavHostController) {
+        var textoFiltrar by remember { mutableStateOf("") }
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                //Poder hacer scroll en la columna
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = textoFiltrar,
+                onValueChange = { textoUsuario ->
+                    textoFiltrar = textoUsuario
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            )
+            for (equipo in listaEquipos.filter { equipo ->
+                equipo.nombre.uppercase().contains(textoFiltrar.uppercase())
+            }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    onClick = {
+                        navController.navigate("jugadoresEquipo/"+equipo.id)
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(equipo.escudo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(90.dp)
+                                .padding(start = 10.dp)
+                        )
+                        Column {
+                            Text(text = equipo.nombre)
+                            Text(text = equipo.liga)
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+
+    @SuppressLint("ResourceType")
+    @Composable
+    fun PlayerCard(
+        imagenJugador: Int,
+        nombre: String,
+        bandera: Int,
+        escudoEquipo: Int,
+        posicion: String
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(R.raw.card),
+                contentDescription = ""
+            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("91", color = Color.Black, fontSize = 18.sp)
+                        Text(posicion, color = Color.Black, fontSize = 12.sp)
+                        Image(
+                            painter = painterResource(id = bandera),
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = null
+                        )
+                        Image(
+                            painter = painterResource(id = escudoEquipo),
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = null
+                        )
+                    }
+                    Image(
+                        painter = painterResource(id = imagenJugador),
+                        modifier = Modifier.size(120.dp),
+                        contentDescription = null
+                    )
+                }
+
+                Text(text = nombre, fontSize = 20.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Column {
-                        Text(text = equipo.nombre)
-                        Text(text = equipo.liga)
+                        Text(text = "91 PAC", fontSize = 12.sp)
+                        Text(text = "91 PAC", fontSize = 12.sp)
+                        Text(text = "91 PAC", fontSize = 12.sp)
+                    }
+                    Column {
+                        Text(text = "91 PAC", fontSize = 12.sp)
+                        Text(text = "91 PAC", fontSize = 12.sp)
+                        Text(text = "91 PAC", fontSize = 12.sp)
                     }
                 }
             }
         }
-
     }
 
-}
-
-
-@SuppressLint("ResourceType")
-@Composable
-fun PlayerCard(
-    imagenJugador: Int,
-    nombre: String,
-    bandera: Int,
-    escudoEquipo: Int,
-    posicion: String
-) {
-    Box(contentAlignment = Alignment.Center) {
-        Image(
-            painter = painterResource(R.raw.card),
-            contentDescription = ""
-        )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("91", color = Color.Black, fontSize = 18.sp)
-                    Text(posicion, color = Color.Black, fontSize = 12.sp)
-                    Image(
-                        painter = painterResource(id = bandera),
-                        modifier = Modifier.size(24.dp),
-                        contentDescription = null
-                    )
-                    Image(
-                        painter = painterResource(id = escudoEquipo),
-                        modifier = Modifier.size(24.dp),
-                        contentDescription = null
-                    )
-                }
-                Image(
-                    painter = painterResource(id = imagenJugador),
-                    modifier = Modifier.size(120.dp),
-                    contentDescription = null
-                )
-            }
-
-            Text(text = nombre, fontSize = 20.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Column {
-                    Text(text = "91 PAC", fontSize = 12.sp)
-                    Text(text = "91 PAC", fontSize = 12.sp)
-                    Text(text = "91 PAC", fontSize = 12.sp)
-                }
-                Column {
-                    Text(text = "91 PAC", fontSize = 12.sp)
-                    Text(text = "91 PAC", fontSize = 12.sp)
-                    Text(text = "91 PAC", fontSize = 12.sp)
+    /**
+     * Funcion para filtrar una lista de jugadores por nombre
+     */
+    fun filtrarJugadores(
+        listaJugadores: List<Player>,
+        textoFiltrar: String,
+        idEquipo: Int?
+    ): List<Player> {
+        // Lista de elementos modificable, a diferencia de una List que es fija, solo puede SOBRECARGARSE
+        val listaFiltrada: ArrayList<Player> = ArrayList()
+        val listaEquipoFiltrada: ArrayList<Player> = ArrayList()
+        //Filtrar 1º por equipo y luego por texto
+        if(idEquipo!= null){
+            for (jugador in listaJugadores) {
+                if (jugador.equipo.id == idEquipo) {
+                    listaEquipoFiltrada.add(jugador)
                 }
             }
+            for (jugador in listaEquipoFiltrada) {
+                if (jugador.nombre.uppercase().contains(textoFiltrar.uppercase())) {
+                    listaFiltrada.add(jugador)
+                }
+            }
+            return listaFiltrada
+        }
+        // Solo filtra por texto escrito
+        else {
+            for (jugador in listaJugadores) {
+                if (jugador.nombre.uppercase().contains(textoFiltrar.uppercase())) {
+                    listaFiltrada.add(jugador)
+                }
+            }
+            return listaFiltrada
         }
     }
-}
 
-/**
- * Funcion para filtrar una lista de jugadores por nombre
- */
-fun filtrarJugadores(listaJugadores: List<Player>, textoFiltrar: String): List<Player> {
-    // Lista de elementos modificable, a diferencia de una List que es fija, solo puede SOBRECARGARSE
-    val listaFiltrada: ArrayList<Player> = ArrayList()
-    for (jugador in listaJugadores) {
-        if (jugador.nombre.uppercase().contains(textoFiltrar.uppercase())) {
-            listaFiltrada.add(jugador)
-        }
-    }
-    return listaFiltrada
 }
